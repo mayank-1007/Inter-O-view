@@ -120,7 +120,7 @@ const Home: React.FC = () => {
       <HeroSection id="home">
         <HeroText>Join the Elite Force</HeroText>
         <SubText>Your path to joining DRDO starts here</SubText>
-        <CTAButton href="/interview">Register</CTAButton>
+        <CTAButton href="/register">Register</CTAButton>
       </HeroSection>
 
       <FeaturesSection id="features">
