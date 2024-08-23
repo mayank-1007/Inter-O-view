@@ -1,42 +1,71 @@
-"use client"
-import React from 'react';
-import { useState } from 'react';
+"use client";
+import React, { useEffect, useState } from 'react';
 import './Dashboard.css';
 
-interface DataItem {
-  label: string;
-  value: number;
-  color: string;
+interface BasicDetails {
+  Name: string;
+  SkillsNeeded: string[];
+  Vacancy: string;
 }
 
-const data: DataItem[] = [
-  { label: '% education', value: 10, color: '#292D32' },
-  { label: '% experience', value: 20, color: '#3172a1' },
-  { label: '% interpersonal communication', value: 30, color: '#6393b8' },
-  { label: '% education', value: 40, color: '#97b6d6' },
-];
-
-interface Props {
-  name: string;
-  overallScore: number;
-  vacancy: string;
+interface InterviewSummary {
+  NegativePoints: string;
+  PositivePoints: string;
 }
 
-const Dashboard: React.FC<Props> = ({ name, overallScore, vacancy }) => {
-  const [notes, setNotes] = useState('');
+interface Scores {
+  EducationalBackgroundScore: number;
+  Experience: number;
+  InterpersonalCommunication: number;
+  OverallScore: number;
+  TechnicalKnowledge: number;
+}
 
-  const strengths: DataItem[] = [
-    { label: 'xyz', value: 70, color: '#292D32' },
-    { label: 'xyz', value: 80, color: '#3172a1' },
-    { label: 'xyz', value: 60, color: '#6393b8' },
-    { label: 'xyz', value: 50, color: '#97b6d6' },
+interface DashboardData {
+  summary: {
+    BasicDetails: BasicDetails;
+    InterviewSummary: InterviewSummary;
+    Scores: Scores;
+  };
+}
+
+const Dashboard: React.FC = () => {
+  const [data, setData] = useState<DashboardData | null>(null);
+  // const [notes, setNotes] = useState('');
+
+  useEffect(() => {
+    // Fetch data from the API endpoint
+    fetch('http://127.0.0.1:5000/end_interview')
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then((data: DashboardData) => {
+        setData(data);
+      })
+      .catch((error) => {
+        console.error('Error fetching dashboard data:', error);
+      });
+  }, []);
+
+  if (!data) {
+    return <div>Loading...</div>;
+  }
+
+  const { BasicDetails, InterviewSummary, Scores } = data.summary;
+
+  const strengths = [
+    { label: 'Technical Knowledge', value: 10*Scores.TechnicalKnowledge, color: '#292D32' },
+    { label: 'Experience', value: 10*Scores.Experience, color: '#3172a1' },
+    // Add more as needed
   ];
 
-  const weaknesses: DataItem[] = [
-    { label: 'xyz', value: 30, color: '#292D32' },
-    { label: 'xyz', value: 40, color: '#3172a1' },
-    { label: 'xyz', value: 50, color: '#6393b8' },
-    { label: 'xyz', value: 60, color: '#97b6d6' },
+  const weaknesses = [
+    { label: 'Educational Background', value: 10*Scores.EducationalBackgroundScore, color: '#6393b8' },
+    { label: 'Interpersonal Communication', value: 10*Scores.InterpersonalCommunication, color: '#97b6d6' },
+    // Add more as needed
   ];
 
   return (
@@ -61,30 +90,27 @@ const Dashboard: React.FC<Props> = ({ name, overallScore, vacancy }) => {
             <div className="chart-wrapper">
               <svg height="200" width="200">
                 <g>
-                  {data.map((item, index) => (
-                    <circle
-                      key={index}
-                      cx="100"
-                      cy="100"
-                      r={90 - index * 15}
-                      fill={item.color}
-                      stroke="#fff"
-                      strokeWidth="2"
-                    />
-                  ))}
+                  {/* Example Chart */}
                 </g>
               </svg>
             </div>
           </div>
         </div>
         <div className="overview">
-          <h2>overview</h2>
-          <textarea
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            className="notes-textarea"
-            placeholder="notes/remarks-"
-          />
+          <h2>Overview</h2>
+          <div className="interview-summary-container">
+          <h2>Interview Summary</h2>
+          <div className="interview-summary">
+            <div className="interview-summary-negative">
+              <h3>Negative Points</h3>
+              <p>{InterviewSummary.NegativePoints}</p>
+            </div>
+            <div className="interview-summary-positive">
+              <h3>Positive Points</h3>
+              <p>{InterviewSummary.PositivePoints}</p>
+            </div>
+          </div>
+        </div>
         </div>
       </div>
       <div className="right-container">
@@ -92,23 +118,23 @@ const Dashboard: React.FC<Props> = ({ name, overallScore, vacancy }) => {
           <div className="profile-image">
             <i className="fas fa-user-circle"></i>
           </div>
-          <div className="profile-name">{name}</div>
+          <div className="profile-name">{BasicDetails.Name}</div>
         </div>
         <div className="overall-score-container">
           <div className="overall-score-circle">
             <div className="overall-score-text">
-              overall score
-              <span>{overallScore}</span>
+              Overall Score
+              <span>{Scores.OverallScore}</span>
             </div>
           </div>
           <div className="vacancy-container">
-            <div className="vacancy-label">vacancy-</div>
-            <div className="vacancy-value">{vacancy}</div>
+            <div className="vacancy-label">Vacancy:</div>
+            <div className="vacancy-value">{BasicDetails.Vacancy}</div>
           </div>
         </div>
         <div className="strengths-weaknesses-container">
           <div className="strengths-container">
-            <h2>strengths</h2>
+            <h2>Strengths</h2>
             {strengths.map((item, index) => (
               <div key={index} className="strength-item">
                 <div className="strength-label">{item.label}</div>
@@ -123,7 +149,7 @@ const Dashboard: React.FC<Props> = ({ name, overallScore, vacancy }) => {
             ))}
           </div>
           <div className="weaknesses-container">
-            <h2>weaknesses</h2>
+            <h2>Weaknesses</h2>
             {weaknesses.map((item, index) => (
               <div key={index} className="weakness-item">
                 <div className="weakness-label">{item.label}</div>
@@ -138,6 +164,7 @@ const Dashboard: React.FC<Props> = ({ name, overallScore, vacancy }) => {
             ))}
           </div>
         </div>
+        
       </div>
     </div>
   );
