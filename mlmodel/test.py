@@ -5,7 +5,7 @@ from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app)
-client = Groq(api_key="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")
+client = Groq(api_key="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")
 
 # Initialize conversation history
 conversation_history = [

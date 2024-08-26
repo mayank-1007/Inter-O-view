@@ -4,6 +4,7 @@ import Home from './components/Home';
 import Dashboard from './components/Dashboard';
 import InterviewRoom from './components/InterviewRoom';
 import RegistrationPage from './components/RegistrationPage';
+import TestRoom from './components/TestRoom';
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/register" element={<RegistrationPage />} />
         <Route path="/interview" element={<InterviewRoom />} />
+        <Route path="/test" element={<TestRoom />} />
         <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
     </Router>
