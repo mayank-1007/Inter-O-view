@@ -12,7 +12,7 @@ const RegistrationPage: React.FC = () => {
         // Here you could also handle form validation and data submission to a server
 
         // After submission, navigate to the interview room
-        navigate('/interview');
+        navigate('/test');
     };
 
     return (
