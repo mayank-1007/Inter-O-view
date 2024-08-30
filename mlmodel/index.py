@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from groq import Groq
-from model import chatbot
+from model import get_response, initializeInterviewee
 from werkzeug.utils import secure_filename
 import os
 
@@ -15,10 +15,9 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
-# client = Groq(api_key='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')
 
-state={'messages': [{'role': 'system', 'content': "You are VK Singh, a sde recruiter for microsoft"}],'resume_text_chunks': "My name is manav", 'about_DRDO_chunks': "DRDO is Defense Research and Development", 'about_job_chunks':"JRF"}
 resumeLocalPath = ""
+
 
 @app.route("/predict",methods = ['POST'])
 def predict():
@@ -26,14 +25,8 @@ def predict():
 
     data = request.get_json()
     query = data.get('query')
-
-    if (query != 'exit'):
-        state['messages'].append({'role': 'user', 'content': query})    
-
-    response_text = chatbot(query, state)
-
-    state['messages'].append({'role': 'assistant', 'content': response_text})
-    print(state['messages'])
+ 
+    response_text = get_response(query)
 
     return jsonify({
         'message' : response_text
@@ -67,6 +60,26 @@ def upload():
         'message' : 'file uploaded successfully',
         'success' : True
     })
+
+
+@app.route("/setUser",methods = ['POST'])
+def setUser():
+
+    data = request.get_json()
+    name = data.get("name")
+    post = data.get("post")
+
+    initializeInterviewee(name, post)
+
+    return jsonify({
+        'message' : 'interviewee initialized successfully !',
+        'success' : True
+    })
+
+
+
+
+
 
 
 if __name__ == '__main__':

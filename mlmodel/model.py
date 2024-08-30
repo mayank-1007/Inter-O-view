@@ -1,106 +1,104 @@
-from groq import Groq
-
-
-def chunk_text(text, chunk_size, overlap):
-        # chunks = []
-        # start = 0
-        # while start < len(text):
-        #     end = start + chunk_size
-        #     chunks.append(text[start:end])
-        #     start += chunk_size - overlap
-        # return ''.join(chunks)
-        return
-        
-
-chunk_size = 1000 
-overlap = 200
+from groq import Groq  # Assuming you have the correct import for Groq
 
 client = Groq(api_key="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")
 
-# about_DRDO="DRDO is the R&D wing of Ministry of Defence, Govt of India, with a vision to empower India with cutting-edge defence technologies and amission to achieve self-reliance in critical defence technologies and systems, while equipping our armed forces with state-of-the-art weapon systems andequipment in accordance with requirements laid down by the three Services. DRDO's pursuit of self-reliance and successful indigenous development andproduction of strategic systems and platforms such as Agni and Prithvi series of missiles; light combat aircraft, Tejas; multi-barrel rocket launcher,Pinaka; air defence system, Akash; a wide range of radars and electronic warfare systems; etc., have given quantum jump to India's military might,generating effective deterrence and providing crucial leverage.'Balasya Mulam Vigyanam'—the source of strength is science-drives the nation in peace andwar. DRDO has firm determination to make the nation strong and self-reliant in terms of science and technology, especially in the field of militarytechnologies.DRDO was formed in 1958 from the amalgamation of the then already functioning Technical Development Establishment (TDEs) of the Indian Armyand the Directorate of Technical Development & Production (DTDP) with the Defence Science Organisation (DSO). DRDO was then a small organisation with 10establishments or laboratories. Over the years, it has grown multi-directionally in terms of the variety of subject disciplines, number of laboratories,achievements and stature.Today, DRDO is a network of around 41 laboratories and 05 DRDO Young Scientist Laboratories (DYSLs) which are deeply engaged indeveloping defence technologies covering various disciplines, like aeronautics, armaments, electronics, combat vehicles, engineering systems,instrumentation, missiles, advanced computing and simulation, special materials, naval systems, life sciences, training, information systems andagriculture. Several major projects for the development of missiles, armaments, light combat aircrafts, radars, electronic warfare systems etc are onhand and significant achievements have already been made in several such technologies."
-# about_DRDO_chunks = chunk_text(about_DRDO, chunk_size, overlap)
 
-# job_advertisement_text="Junior Research Fellowship"
-# about_job_chunks = chunk_text(job_advertisement_text, chunk_size, overlap)
-# resume_text="My name is Karan. I have done. BTech from DTU in computer science and technology."
-# resume_text_chunks = chunk_text(resume_text, chunk_size, overlap)
+name =""
+post = ""
+vacancy =["SDE", "ML-Scientist", "Junior Research Fellow"]
+skills =["CP", "WebDev", "AI-ML", "Algorithms"]
 
-
-
-def chatbot(user_input, state):
-
-    if(user_input == 'exit'):
-        print("hello i am here")
-        
-        prompt = """Output the summary as a JSON object. Do not include any non-JSON text or special characters. The JSON object should follow this template:
-
-                    {
-                        "BasicDetails": {
-                            "Name": "string",
-                            "Vacancy": "string",
-                            "SkillsNeeded": ["string"]
-                        },
-                        "Scores": {
-                            "EducationalBackgroundScore": number,
-                            "Experience": number,
-                            "InterpersonalCommunication": number,
-                            "TechnicalKnowledge": number,
-                            "OverallScore": number
-                        },
-                        "InterviewSummary": {
-                            "PositivePoints": "string",
-                            "NegativePoints": "string",
-                            "YourJudgement": "string"
-                        }
-                    }
+conversation_history = [
+    {"role": "system", "content": f"You are Manoj Kumar, a male officer from the Defence Research & Development Organisation (DRDO), responsible for conducting a professional interview (High level Interview) for a job vacancy for {vacancy}. Your objective is to thoroughly assess the candidate's technical skills specifically {skills}, problem-solving abilities, and cultural fit Innovation and Creativity, Teamwork and Collaboration , Decision Making  for DRDO. The interview should be structured to include a mix of technical, psychological questions, along with appropriate follow-up questions to probe deeper into the candidate's knowledge. Throughout the interview, maintain a formal and professional tone. If the candidate provides irrelevant responses (e.g., answering simple arithmetic questions like '2+5'), politely but firmly redirect them to focus on the interview questions. Note : Even try to limit the length of questions to be 30-50 words. If the candidate continues to provide irrelevant answers or engages in unproductive behaviour, calmly inform them that the interview cannot proceed without serious engagement, and if necessary, end the interview by stating that the session will be concluded due to a lack of relevant responses. Ensure that each question is asked clearly and concisely, and avoid overwhelming the candidate by limiting the number of questions asked at once. At the conclusion of the interview, you need to evaluate the candidate's overall performance. When I say end the interview , you need to enter the interview , be strict and try to note which questions are not able to be answered by the interviewee. You are not entering into the real world simulation. Try not to make up things, please clear and concise. Don't ever add 'Please note that this is a formal and professional interview, and I expect your responses to be relevant and concise. If you have any questions or concerns, please feel free to ask.' in answer response. Start by taking introduction and then to make skill related questions and counter questions."},
+    {"role": "user", "content": f"My name is {name} and i am applying for the post of {post}"}
+]
 
 
-                Instructions:
-                
-                Basic Details:
-                Name: The name of the candidate.
-                Vacancy: The position or role for which the interview was conducted.
-                SkillsNeeded: List of skills required for the position.
+def final_dashboard_json():
+    prompt = """Please provide a summary of the interview using the following JSON format.:
 
-                Scores :
-                EducationalBackgroundScore: Score based on the candidate's educational qualifications.should be between 1-10.
-                Experience: Score based on the candidate's relevant work experience.should be between 1-10.
-                InterpersonalCommunication: Score based on the candidate's ability to communicate and interact effectively.should be between 1-10.
-                TechnicalKnowledge: Score based on the candidate's technical skills and knowledge.should be between 1-10.
-                OverallScore: Overall performance score of the candidate.should be between 1-10.
-                
-                InterviewSummary:
-                PositivePoints: Key strengths or positive aspects observed during the interview.
-                NegativePoints: Key weaknesses or areas of concern noted during the interview.
-                yourJudgement: what is your opinion in how good the person was for the job.should we accept him or reject.
-                Please ensure the output is strictly in the json format provided and reflects a professional evaluation of the interview. Avoid including any speculative or non-factual information.Please ensure the response is in raw JSON format, not as a string or escaped text.
-                """
-        state['messages'].append({"role": "system", "content": prompt})
+    {
+        "BasicDetails": {
+            "Name of Candidate": "",
+            "Vacancy": "",
+            "SkillsNeeded": []
+        },
+        "Scores": {
+            "EducationalBackgroundScore": 0,
+            "Experience": 0,
+            "InterpersonalCommunication": 0,
+            "TechnicalKnowledge": 0,
+            "OverallScore": 0
+        },
+        "InterviewSummary": {
+            "PositivePoints": "",
+            "NegativePoints": ""
+        }
+    }
+
+    Instructions:
+
+    BasicDetails:
+
+    Name: The name of the candidate.
+    Vacancy: The position or role for which the interview was conducted.
+    SkillsNeeded: List of skills required for the position.
+    Scores(Very Very Strict Marking considering all responses recorded during interview conversation):
+
+    EducationalBackgroundScore: Score based on the candidate's educational qualifications.(Out of 10)
+    Experience: Score based on the candidate's relevant work experience.(Out of 10)
+    InterpersonalCommunication: Score based on the candidate's ability to communicate and interact effectively.(Out of 10)
+    TechnicalKnowledge: Score based on the candidate's technical skills and knowledge.(Out of 10)
+    OverallScore: Overall performance score of the candidate.(Try to be less than 50 for bad candidate and 60-70 at max Out of 100)
+
+    InterviewSummary:
+
+    PositivePoints: Key strengths or positive aspects observed during the interview.
+    NegativePoints: Key weaknesses or areas of concern noted during the interview.Give 2-3 negative points in ordered format.
+    Please ensure the output is strictly in the JSON format provided and reflects a professional evaluation of the interview. Avoid including any speculative or non-factual information.
+    """
+    
+    conversation_history.append({"role": "user", "content": prompt})
+
+    try:
         chat_completion = client.chat.completions.create(
-                    messages=state['messages'],
-                    model="llama3-8b-8192",
-                )
+            messages=conversation_history,
+            model="llama3-8b-8192",
+        )
         response_text = chat_completion.choices[0].message.content
-        return response_text
+    except Exception as e:
+       
+        return "Error"
 
-    else:
-        # state['messages'].append({'role': 'user', 'content': user_input})
-        chat_completion = client.chat.completions.create(
-        messages=state['messages'] +[
-            {"role": "system", "content": state['resume_text_chunks']},
-            # {"role": "system", "content": state['about_DRDO_chunks']},
-            # {"role": "system", "content": state['about_job_chunks']}
-        ],
-        model="llama3-8b-8192",
-    )
-    response_text = chat_completion.choices[0].message.content
-    # state['messages'].append({'role': 'assistant', 'content': response_text})
     return response_text
 
-if __name__ == "__main__":
+def get_response(user_input):
 
-    while(True):
-        print("You : ",end="")
-        user_input = input()
-        response_text=chatbot(user_input)
-        print("Interviewer : ", response_text)
+    try:
+
+        if (user_input.lower() == "exit"):
+            return final_dashboard_json(conversation_history)
+        
+        else:
+
+            conversation_history.append({"role": "user", "content": user_input})
+
+            chat_completion = client.chat.completions.create(
+            messages=conversation_history,
+            model="llama3-8b-8192",
+            )
+
+            response_text = chat_completion.choices[0].message.content
+            conversation_history.append({"role": "assistant", "content": response_text})
+
+            return response_text
+        
+    except Exception as e:
+     
+        return "Error"
+
+
+def initializeInterviewee(username,appliedPost):
+    name = username
+    post = appliedPost
+

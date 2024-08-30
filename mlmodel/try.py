@@ -1,3 +1,2 @@
-import uuid
-
-print(uuid.uuid1())
+name = "Manav"
+print(name.upper())
