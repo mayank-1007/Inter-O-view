@@ -1,5 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
+import { IconRiCameraLine } from './IconRiCameraLine';
+import { IconRiCameraOffLine } from './IconRiCameraOffLine';
+import { IconRiMicLine } from './IconRiMicLine';
+import { IconRiMicOffLine } from './IconRiMicOffLine';
+import AWS from 'aws-sdk';
 
 declare global {
   interface Window {
@@ -11,21 +16,40 @@ function InterviewRoom() {
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
   const [response, setResponse] = useState('');
-  const [receivedResponse, setReceivedResponse] = useState(false);
-  const [conversationHistory, setConversationHistory] = useState<{ text: string, isExpanded: boolean }[]>([]);
+  const [conversationHistory, setConversationHistory] = useState<any[]>([]);
   const [isCameraOn, setIsCameraOn] = useState(false);
-  const [cameraAndInterviewHeight, setCameraAndInterviewHeight] = useState(300);
-  const [responseAreaHeight, setResponseAreaHeight] = useState(200);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isGifVisible, setIsGifVisible] = useState(false); // State to control GIF visibility
+  const [isGifVisible, setIsGifVisible] = useState(false);
+  const [isAwsConnected, setIsAwsConnected] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const cameraAndInterviewRef = useRef<HTMLDivElement>(null);
-  const responseAreaRef = useRef<HTMLDivElement>(null);
   const recogRef: any = useRef(null);
 
   useEffect(() => {
+    // Check if AWS Polly is configured and connected
+    const checkAwsConnection = async () => {
+      try {
+        AWS.config.update({
+          region: 'us-east-1', // Change to your region
+          accessKeyId: process.env.REACT_APP_AWS_ACCESS_KEY, // Replace with your credentials
+          secretAccessKey: process.env.REACT_APP_AWS_SECRET_KEY,
+        });
+        const polly = new AWS.Polly();
+        const params = {
+          Text: 'Test connection',
+          OutputFormat: 'mp3',
+          VoiceId: 'Joanna',
+        };
+        await polly.synthesizeSpeech(params).promise();
+        setIsAwsConnected(true);
+      } catch (error) {
+        console.error('AWS Polly connection failed:', error);
+        setIsAwsConnected(false);
+      }
+    };
+
+    checkAwsConnection();
+
     if (!('webkitSpeechRecognition' in window)) {
-      alert("Speech recognition not supported.");
+      alert('Speech recognition not supported.');
       return;
     }
 
@@ -38,7 +62,6 @@ function InterviewRoom() {
 
     recognition.onresult = (e: any) => {
       const transcriptResult = e.results[0][0].transcript;
-      console.log('Transcript Result:', transcriptResult); // Debugging
       setTranscript(transcriptResult);
     };
 
@@ -47,8 +70,7 @@ function InterviewRoom() {
       recognition.stop();
     };
 
-    recognition.onerror = (e: any) => {
-      console.error('Speech recognition error detected: ' + e.error);
+    recognition.onerror = () => {
       setIsListening(false);
       recognition.stop();
     };
@@ -64,33 +86,55 @@ function InterviewRoom() {
     }
   };
 
-  const speakText = () => {
-    if ('speechSynthesis' in window && response) {
-      const utterance = new SpeechSynthesisUtterance(response);
-      utterance.rate = 1;
+  const speakText = async () => {
+    if (response) {
+      if (isAwsConnected) {
+        const polly = new AWS.Polly();
+        const params = {
+          Text: response,
+          OutputFormat: 'mp3',
+          VoiceId: 'Joanna', // or any other available voice
+        };
 
-      // Manage GIF visibility
-      utterance.onstart = () => {
-        setIsGifVisible(true);  
-      };
+        try {
+          const { AudioStream } = await polly.synthesizeSpeech(params).promise();
+          const audioBlob = new Blob([AudioStream as BlobPart], { type: 'audio/mp3' });
+          const audioUrl = URL.createObjectURL(audioBlob);
+          const audio = new Audio(audioUrl);
+          audio.onplay = () => {
+            setIsGifVisible(true);
+          };
+          audio.onended = () => {
+            setIsGifVisible(false);
+          };
+          audio.play();
+        } catch (error) {
+          console.error('Error with AWS Polly speech synthesis:', error);
+        }
+      } else if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(response);
+        utterance.rate = 1;
 
-      utterance.onend = () => {
-        setIsGifVisible(false);
-        setReceivedResponse(false); // Mark response as handled after speaking
-      };
+        utterance.onstart = () => {
+          setIsGifVisible(true);
+        };
 
-      window.speechSynthesis.speak(utterance);
+        utterance.onend = () => {
+          setIsGifVisible(false);
+        };
+
+        window.speechSynthesis.speak(utterance);
+      }
     }
   };
 
   const getResponse = async () => {
     try {
-      console.log('Fetching response for:', transcript); // Debugging
       const res = await axios.post('http://localhost:3000/api/v1/user/callModel', { query: transcript });
-      console.log('API Response:', res.data.message); // Debugging
-      setResponse(res.data.message);
-      setReceivedResponse(true);
-      setIsGifVisible(true); // Show GIF when response is received
+      const newResponse = res.data.message;
+      setResponse(newResponse);
+      setConversationHistory([...conversationHistory, { user: transcript, ai: newResponse }]);
+      speakText();
     } catch (error) {
       console.error('Error fetching response:', error);
     }
@@ -101,18 +145,6 @@ function InterviewRoom() {
       getResponse();
     }
   }, [transcript]);
-
-  useEffect(() => {
-    if (response) {
-      console.log("Response received:", response); // Debugging line
-      speakText();
-      const timestamp = new Date().toLocaleTimeString();
-      setConversationHistory(prev => [
-        ...prev,
-        { text: `Prompt (${timestamp}): ${transcript}\nResponse (${timestamp}): ${response}`, isExpanded: false }
-      ]);
-    }
-  }, [response]);
 
   const toggleCamera = async () => {
     if (isCameraOn) {
@@ -134,153 +166,92 @@ function InterviewRoom() {
     }
   };
 
-  const handleCameraAndInterviewResizeMouseDown = () => {
-    document.addEventListener('mousemove', handleCameraAndInterviewResizeMouseMove as EventListener);
-    document.addEventListener('mouseup', handleCameraAndInterviewResizeMouseUp as EventListener);
-  };
-
-  const handleCameraAndInterviewResizeMouseMove = (e: MouseEvent) => {
-    const newHeight = e.clientY - (cameraAndInterviewRef.current?.getBoundingClientRect().top || 0);
-    if (newHeight > 100 && newHeight < window.innerHeight - responseAreaHeight - 50) {
-      setCameraAndInterviewHeight(newHeight);
-      setResponseAreaHeight(window.innerHeight - newHeight - 50);
-    }
-  };
-
-  const handleCameraAndInterviewResizeMouseUp = () => {
-    document.removeEventListener('mousemove', handleCameraAndInterviewResizeMouseMove as EventListener);
-    document.removeEventListener('mouseup', handleCameraAndInterviewResizeMouseUp as EventListener);
-  };
-
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
-
-  const toggleEntry = (index: number) => {
-    setConversationHistory(prev => prev.map((entry, i) => i === index ? { ...entry, isExpanded: !entry.isExpanded } : entry));
-  };
-
   return (
-    <div className="flex flex-col h-screen">
-      {/* Sidebar */}
-      <div className={`fixed inset-y-0 left-0 bg-black text-white transition-transform transform ${isSidebarOpen ? 'w-64 translate-x-0 border-r-2 border-white' : 'w-0 -translate-x-full'}`}>
-        <div className="h-full p-4 overflow-auto">
-          <h2 className="items-center justify-center text-lg font-bold">Conversation History</h2>
-          <ul className="space-y-2">
-            {conversationHistory.length > 0 ? (
-              conversationHistory.map((entry, index) => (
-                <li key={index} className="border-b border-gray-700">
-                  <div className="p-2 cursor-pointer" onClick={() => toggleEntry(index)}>
-                    <div className="flex items-center justify-between">
-                      <span className="font-semibold">Conversation {index + 1}</span>
-                      <span>{entry.isExpanded ? '▲' : '▼'}</span>
-                    </div>
-                    {entry.isExpanded && (
-                      <pre className="mt-2 whitespace-pre-wrap">{entry.text}</pre>
-                    )}
-                  </div>
-                </li>
-              ))
-            ) : (
-              <li className="p-2">No conversation history available.</li>
-            )}
-          </ul>
-        </div>
+    <div className="flex flex-col min-h-screen font-sans text-gray-200 bg-zinc-900">
+      <div className="flex justify-between p-4 bg-zinc-800">
+        <h2 className="text-2xl font-semibold">
+          <img
+            src="inter-o-view.jpg"
+            alt="logo"
+            height={'40px'}
+            width={'80px'}
+            className="rounded-lg"
+          />
+        </h2>
+        <button
+          onClick={() => window.location.href = '/dashboard'}
+          className="px-4 py-2 text-black bg-white rounded-md"
+        >
+          End Interview
+        </button>
       </div>
 
-      {/* Main Content Area */}
-      <div className={`flex-1 flex flex-col transition-all ${isSidebarOpen ? 'ml-64' : 'ml-0'}`}>
-        <div className="relative">
-          {/* Hamburger Icon */}
-          <button
-            onClick={toggleSidebar}
-            className="absolute z-10 p-2 text-white bg-green-700 rounded-md top-4 left-4 focus:outline-none"
-          >
-            &#9776;
-          </button>
-        </div>
-
-        <div className="flex flex-col h-full">
-          <div ref={cameraAndInterviewRef} className="flex" style={{ height: cameraAndInterviewHeight }}>
+      <div className="flex flex-1 gap-4 p-4 overflow-hidden">
+        {/* Left Section with Camera and GIF */}
+        <div className="flex flex-col items-center flex-1 gap-4">
+          <div className="flex flex-row justify-center w-full gap-4">
             {/* Camera Area */}
-            <div className="relative flex-1 bg-gray-200 rounded-md">
-              <video ref={videoRef} autoPlay className={`w-full h-full rounded-lg ${isCameraOn ? 'block' : 'hidden'}`}></video>
+            <div className="relative w-1/2 max-w-sm overflow-hidden bg-gray-800 h-72 rounded-3xl">
+              <video ref={videoRef} autoPlay className={`w-full h-full ${isCameraOn ? 'block' : 'hidden'}`}></video>
               {!isCameraOn && (
-                <div className="absolute inset-0 flex items-center justify-center bg-gray-200 rounded-lg">
-                  <div className="relative text-4xl font-bold">
-                    <span className="text-black">Mayank Manchanda</span>
-                  </div>
+                <div className="flex items-center justify-center h-full text-3xl text-white">
+                  User
                 </div>
               )}
-              <button
-                onClick={toggleCamera}
-                className={`absolute bottom-4 left-4 p-2 rounded-full ${isCameraOn ? 'bg-red-600' : 'bg-green-600'}`}
-              >
-                {isCameraOn ? 'Turn Off Camera' : 'Turn On Camera'}
-              </button>
             </div>
 
-            {/* Interviewer Area */}
-            <div className="relative flex items-center justify-center flex-1 h-full overflow-auto bg-gray-200">
-          {(isGifVisible && !isListening) ? (
-            <img
-              src="interviewer1.gif" // Ensure this path is correct
-              alt="Interviewer"
-              height={200}
-              width={200}
-              className="object-contain max-w-full max-h-full"
-            />
-          ) : (
-            <img
-              src="interviewer1.png" // Ensure this path is correct
-              alt="Interviewer"
-              height={200}
-              width={200}
-              className="object-contain max-w-full max-h-full"
-            />
-          )}
-        </div>
+            {/* GIF Area */}
+            <div className="relative items-center justify-center w-1/2 max-w-sm overflow-hidden bg-zinc-800 h-72 rounded-3xl">
+              {(isGifVisible && !isListening) ? (
+                <img
+                  src="interviewer1.gif"
+                  alt="Interviewer"
+                  className="object-cover h-full w-fit"
+                />
+              ) : (
+                <img
+                  src="interviewer1.png"
+                  alt="Interviewer"
+                  className="object-cover h-full w-fit "
+                />
+              )}
+            </div>
           </div>
 
-          {/* Resizable Divider */}
-          <div
-            onMouseDown={handleCameraAndInterviewResizeMouseDown}
-            className="w-full h-2 bg-gray-600 cursor-row-resize"
-          ></div>
+          {/* Camera and Mic Icons */}
+          <div className="flex justify-center p-2 rounded-3xl">
+            <button
+              onClick={toggleCamera}
+              className={`items-center justify-center p-4 mr-4 rounded-full ${isCameraOn ? 'bg-green-600' : 'bg-red-600'}`}
+            >
+              {isCameraOn ? (
+                <IconRiCameraLine className="text-3xl" />
+              ) : (
+                <IconRiCameraOffLine className="text-3xl" />
+              )}
+            </button>
 
-          {/* Response Area */}
-          <div
-            ref={responseAreaRef}
-            className="relative flex-1 p-4 overflow-auto text-white rounded-lg shadow-md bg-zinc-900"
-            style={{ height: responseAreaHeight }}
-          >
-            <div className="mb-4">
-              <h3 className="text-3xl font-semibold text-gray-200">Current Message</h3>
-              <br />
-              <p className="p-3 mt-2 text-xl text-white break-words border border-gray-700 rounded-md">{transcript}</p>
-            </div>
-            <br />
-            <div>
-              <h3 className="text-3xl font-semibold text-gray-200">Response</h3>
-              <br />
-              <p className="p-3 mt-2 break-words border border-gray-700 rounded-md text-gray-50">
-                {response}
+            <button
+              onClick={startListening}
+              className={`items-center justify-center p-4 rounded-full ${isListening ? 'bg-green-600' : 'bg-red-600'}`}
+            >
+              {isListening ? <IconRiMicLine className="text-3xl" /> : <IconRiMicOffLine className="text-3xl" />}
+            </button>
+          </div>
+
+          {/* Message and Response Section */}
+          <div className="w-full min-h-0 p-4 rounded-md bg-zinc-800">
+            {transcript && (
+              <p className="p-4 mt-2 text-lg rounded-md">
+                <span className="font-semibold">User:</span> <br /> {transcript}
               </p>
-            </div>
+            )}
+            {response && (
+              <p className="p-4 mt-2 text-lg rounded-md">
+                <span className="font-semibold">AI:</span> <br /> {response}
+              </p>
+            )}
           </div>
-        </div>
-
-        {/* Controls */}
-        <div className="fixed flex justify-center w-full gap-4 bottom-4">
-          <button
-            onClick={startListening}
-            className={`text-white border-2 rounded p-2 ${isListening ? 'border-green-600' : 'border-red-600'}`}
-          >
-            {isListening ? 'Listening...' : 'Start Listening'}
-          </button>
-          <button onClick={() => window.location.href = '/dashboard'} className="p-2 text-white bg-red-600 rounded">
-            End Interview
-          </button>
         </div>
       </div>
     </div>
