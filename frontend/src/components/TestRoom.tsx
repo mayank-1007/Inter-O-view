@@ -4,9 +4,7 @@ import { IconRiCameraLine } from './IconRiCameraLine';
 import { IconRiCameraOffLine } from './IconRiCameraOffline.tsx';
 import { IconRiMicLine } from './IconRiMicLine';
 import { IconRiMicOffLine } from './IconRiMicOffline.tsx';
-import { TextToSpeech } from 'elevenlabs-node';
 import { useNavigate } from 'react-router-dom';
-import logo from '/finalLogo.jpg'
 
 declare global {
   interface Window {
@@ -169,26 +167,26 @@ const speakText = async (newResponse: string) => {
     console.log("great");
     try {
       console.log(newResponse);
-      const apiKey = 'sk_733ba366b5f566c3097fa2a4866d96fe0bb2952845fd4abb';
+      // const apiKey = 'sk_733ba366b5f566c3097fa2a4866d96fe0bb2952845fd4abb';
       const url = 'https://api.elevenlabs.io/v1/text-to-speech/H6QPv2pQZDcGqLwDTIJQ';
 
-      const options = {
-        method: 'POST',
-        mode: 'cors',
-        headers: {
-          'Content-Type': 'application/json',
-          'xi-api-key': apiKey,
-        },
-        body: JSON.stringify({
-          text: newResponse,
-          voice_settings: {
-            stability: 0.5,
-            similarity_boost: 0.5,
-          },
-        }),
-      };
+      // const options = {
+      //   method: 'POST',
+      //   mode: 'cors',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //     'xi-api-key': apiKey,
+      //   },
+      //   body: JSON.stringify({
+      //     text: newResponse,
+      //     voice_settings: {
+      //       stability: 0.5,
+      //       similarity_boost: 0.5,
+      //     },
+      //   }),
+      // };
 
-      const res = await fetch(url, options);
+      const res = await fetch(url);
 
       if (!res.ok) {
         throw new Error('Failed to fetch the audio');
@@ -224,7 +222,7 @@ const speakText = async (newResponse: string) => {
   }, [response]);
   
   useEffect(() => {
-    speakText();
+    speakText(response);
   },[response])
 
   const getResponse = async () => {

@@ -1,4 +1,3 @@
-import image1 from '/landingImage1.png'
 import '../index.css'
 import gsap from 'gsap'
 import { useGSAP } from '@gsap/react'
@@ -9,7 +8,6 @@ import java from '/java-removebg-preview.png'
 import cpp from '/cpp-removebg-preview.png'
 import ml from '/ml-removebg-preview.png'
 import emb from '/emb-removebg-preview.png'
-import { Link, useNavigate } from 'react-router-dom';
 import ScrollTrigger from 'gsap/ScrollTrigger'
 import land1 from '/land1.jpg'
 import land2 from '/land2.jpg'
@@ -162,10 +160,10 @@ function Home3() {
         };
       }, []);
   return (
-    <div className='w-full custom-scrollbar overflow-hidden'>
+    <div className='w-full overflow-hidden custom-scrollbar'>
         {/* section1 */}
-        <div className='w-full flex'>
-            <div className='w-1/2 text-7xl font-bold flex justify-center px-24 items-center'>
+        <div className='flex w-full'>
+            <div className='flex items-center justify-center w-1/2 px-24 font-bold text-7xl'>
                 <div className='text-slate-400'>
                     <h2 className='gradient-text text1' ref={h1Ref}>AI recruitment</h2>
                     <span className='text-cyan-900 text2' ref={h2Ref}>engine </span>
@@ -173,54 +171,54 @@ function Home3() {
                 </div>
             </div>
             <div className='w-1/2 p-12 grid grid-cols-2 grid-rows-2 h-[600px] gap-12 relative'>
-                {/* <img src={image1} alt="" className='rounded-xl mt-6 w-full h-full'/> */}
-                <div className='w-full h-full relative'>
-                    <div className='w-80 rounded-xl h-40 z-10 absolute -bottom-8 p-4 left-14'style={{ background: 'linear-gradient(to right, #DAEAFF, transparent)' }}>
+                {/* <img src={image1} alt="" className='w-full h-full mt-6 rounded-xl'/> */}
+                <div className='relative w-full h-full'>
+                    <div className='absolute z-10 h-40 p-4 w-80 rounded-xl -bottom-8 left-14'style={{ background: 'linear-gradient(to right, #DAEAFF, transparent)' }}>
                         <img src={ailog} alt=""  className='absolute h-14 aspect-square -top-8 left-32'/>
-                        <div className='bg-white rounded-xl w-full h-full pt-4 px-4'>
-                            <h1 className='font-bold font-mono text-lg mb-2 text-slate-500'>Tell me about yourself ?</h1>
+                        <div className='w-full h-full px-4 pt-4 bg-white rounded-xl'>
+                            <h1 className='mb-2 font-mono text-lg font-bold text-slate-500'>Tell me about yourself ?</h1>
                             <h2 className='font-mono font-semibold gradient-text text-md'>Hello! Neal this side, from DTU.....</h2>
                         </div>
                     </div>
                 </div>
                 <img src={land1} alt="" className='h-[350px] w-full' />
 
-                <img src={land2} alt="" className='h-full w-full' />
+                <img src={land2} alt="" className='w-full h-full' />
                 <span></span>                
             </div>
         </div>
-        <div className='w-full px-24 flex justify-center gap-3 mt-12'>
-                <div className='w-4 aspect-square rounded-full border-2'></div>
-                <div className='w-4 aspect-square rounded-full border-2'></div>
-                <div className='w-4 aspect-square rounded-full border-2'></div>
+        <div className='flex justify-center w-full gap-3 px-24 mt-12'>
+                <div className='w-4 border-2 rounded-full aspect-square'></div>
+                <div className='w-4 border-2 rounded-full aspect-square'></div>
+                <div className='w-4 border-2 rounded-full aspect-square'></div>
         </div>
         {/* sections2 */}
-        <div className='min-w-full overflow-hidden font-semibold text-9xl my-24 text-gray-200 flex'>
+        <div className='flex min-w-full my-24 overflow-hidden font-semibold text-gray-200 text-9xl'>
             {
                 Array.from({length : 100}).map((_, index)=>(
-                    <div className="box flex-shrink-0" key={index} style={{letterSpacing : "-5px"}}>Int-O-View&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+                    <div className="flex-shrink-0 box" key={index} style={{letterSpacing : "-5px"}}>Int-O-View&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
                 ))
             }
         </div>
         {/* section3 */}
-        <div className="mx-auto my-12 max-w-7xl px-4 sm:px-6 md:my-24 lg:my-32 lg:px-8 base">
-            <div className="mx-auto max-w-xl text-center">
+        <div className="px-4 mx-auto my-12 max-w-7xl sm:px-6 md:my-24 lg:my-32 lg:px-8 base">
+            <div className="max-w-xl mx-auto text-center">
             <div className="mx-auto inline-flex rounded-full bg-gray-100 px-4 py-1.5">
-                <p className="text-xs font-semibold uppercase tracking-widest text-black">
+                <p className="text-xs font-semibold tracking-widest text-black uppercase">
                 Tailored Interviews Powered By AI
                 </p>
             </div>
             <h2 className="mt-6 text-3xl font-bold leading-tight text-black sm:text-4xl lg:text-5xl first">
                 Int-O-View Eases Your Interview
             </h2>
-            <p className="mt-14 text-base leading-relaxed text-gray-600">
+            <p className="text-base leading-relaxed text-gray-600 mt-14">
                 Why choose Our Platform ?
             </p>
             </div>
-            <div className="mt-12 grid grid-cols-1 gap-y-8 text-center sm:grid-cols-2 sm:gap-12 lg:grid-cols-4">
+            <div className="grid grid-cols-1 mt-12 text-center gap-y-8 sm:grid-cols-2 sm:gap-12 lg:grid-cols-4">
             <div className='second'>
-            <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gray-100">
-                <DollarSign className="h-9 w-9 text-gray-700" />
+            <div className="flex items-center justify-center w-20 h-20 mx-auto bg-gray-100 rounded-full">
+                <DollarSign className="text-gray-700 h-9 w-9" />
             </div>
             <h3 className="mt-8 text-lg font-semibold text-black">Secure & Confidential</h3>
             <p className="mt-4 text-sm text-gray-600">
@@ -228,8 +226,8 @@ function Home3() {
             </p>
             </div>
             <div className='third'>
-            <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gray-100">
-                <Zap className="h-9 w-9 text-gray-700" />
+            <div className="flex items-center justify-center w-20 h-20 mx-auto bg-gray-100 rounded-full">
+                <Zap className="text-gray-700 h-9 w-9" />
             </div>
             <h3 className="mt-8 text-lg font-semibold text-black">Fast Responses</h3>
             <p className="mt-4 text-sm text-gray-600">
@@ -238,8 +236,8 @@ function Home3() {
             </div>
 
             <div className='fourth'>
-                <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gray-100">
-                <CheckCircle className="h-9 w-9 text-gray-700" />
+                <div className="flex items-center justify-center w-20 h-20 mx-auto bg-gray-100 rounded-full">
+                <CheckCircle className="text-gray-700 h-9 w-9" />
                 </div>
                 <h3 className="mt-8 text-lg font-semibold text-black">In-depth Assessment</h3>
                 <p className="mt-4 text-sm text-gray-600">
@@ -247,8 +245,8 @@ function Home3() {
                 </p>
             </div>
             <div className='fifth'>
-                <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gray-100">
-                <ThumbsUp className="h-9 w-9 text-gray-700" />
+                <div className="flex items-center justify-center w-20 h-20 mx-auto bg-gray-100 rounded-full">
+                <ThumbsUp className="text-gray-700 h-9 w-9" />
                 </div>
                 <h3 className="mt-8 text-lg font-semibold text-black">Hassle Free</h3>
                 <p className="mt-4 text-sm text-gray-600">
@@ -257,17 +255,17 @@ function Home3() {
             </div>
             </div>
         </div>
-        <div className='w-full px-24 flex justify-center gap-3 mt-12'>
-                <div className='w-4 aspect-square rounded-full border-2'></div>
-                <div className='w-4 aspect-square rounded-full border-2'></div>
-                <div className='w-4 aspect-square rounded-full border-2'></div>
+        <div className='flex justify-center w-full gap-3 px-24 mt-12'>
+                <div className='w-4 border-2 rounded-full aspect-square'></div>
+                <div className='w-4 border-2 rounded-full aspect-square'></div>
+                <div className='w-4 border-2 rounded-full aspect-square'></div>
         </div>
-        <div className='w-full aspect-auto px-12 flex flex-col items-center justify-center gap-8 mt-12'>
+        <div className='flex flex-col items-center justify-center w-full gap-8 px-12 mt-12 aspect-auto'>
             <img src={roadmap} alt="" className='w-full h-full'/>
         </div>
         {/* section4 */}
-        <div className='flex flex-col gap-10 justify-center items-center my-16'>
-            <h2 className='text-5xl font-mono font-bold'>Tech Stack</h2>
+        <div className='flex flex-col items-center justify-center gap-10 my-16'>
+            <h2 className='font-mono text-5xl font-bold'>Tech Stack</h2>
 
             
             <div className="dabba" ref={dabbaRef}>
@@ -289,17 +287,17 @@ function Home3() {
 
         </div>
         {/* section5 */}
-        <section className="mx-auto max-w-7xl bg-gray-50 px-2 py-10 md:px-0 faq mb-32">
+        <section className="px-2 py-10 mx-auto mb-32 max-w-7xl bg-gray-50 md:px-0 faq">
         <div>
-            <div className="mx-auto max-w-2xl lg:text-center">
+            <div className="max-w-2xl mx-auto lg:text-center">
                 <h2 className="text-3xl font-bold leading-tight text-black sm:text-4xl lg:text-5xl">
                 Frequently Asked Questions
                 </h2>
-                <p className="mt-4 max-w-xl text-base leading-relaxed text-gray-600 lg:mx-auto">
+                <p className="max-w-xl mt-4 text-base leading-relaxed text-gray-600 lg:mx-auto">
                 Find answers to common questions about our AI-powered interview platform.
                 </p>
             </div>
-            <div className="mx-auto mt-8 grid max-w-3xl grid-cols-1 gap-6 md:mt-16 md:grid-cols-2">
+            <div className="grid max-w-3xl grid-cols-1 gap-6 mx-auto mt-8 md:mt-16 md:grid-cols-2">
                 {[
                 {
                     question: "How do I get started?",
@@ -337,7 +335,7 @@ function Home3() {
             </div>
             <p className="mt-10 text-center text-gray-600">
                 Can&apos;t find what you&apos;re looking for?{' '}
-                <a href="#" title="" className="black font-semibold hover:underline">
+                <a href="#" title="" className="font-semibold black hover:underline">
                 Contact us
                 </a>
             </p>

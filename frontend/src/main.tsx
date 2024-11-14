@@ -2,7 +2,6 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import {createBrowserRouter, createRoutesFromElements, Route, RouterProvider} from "react-router-dom";
 import {Home2} from './components/Home2.tsx';
-import Home from './components/Home.tsx';
 import Layout from './Layout.tsx';
 import Details2 from './components/Details2.tsx';
 import Details1 from './components/Details1.tsx';
