@@ -4,16 +4,40 @@ import { ApiResponse } from '../utils/Apiresponse.js';
 import { User } from '../models/user.model.js';
 import { uploadOnCloudinary } from '../utils/cloudinary.js';
 import axios from 'axios';
+import axiosRetry from 'axios-retry';
 import jwt from 'jsonwebtoken';
 import { OtpVerification } from '../models/otpVerification.model.js';
 import { nodemailerService } from '../utils/nodemailer.js';
 import fs from 'fs';
 import FormData from 'form-data';
 
+axiosRetry(axios, {
+  retries: 3,
+  retryCondition: (error) => error.response?.status === 429,
+  retryDelay: (retryCount, error) => {
+    const retryAfter = error.response?.headers['retry-after'];
+    if (retryAfter) {
+      return parseInt(retryAfter, 10) * 1000;
+    }
+    // On renderfree instance will spin down with inactivity, which can delay requests by 50 seconds so..
+    return 60000;
+  },
+  onRetry: (retryCount, error) => {
+    console.warn(`Request failed with ${error.response?.status}, retrying #${retryCount}`);
+  },
+});
+
+const rebootServer = asyncHandler(async (req, res) => {
+  return res.status(200).json({ message: 'Server is running' });
+})
+
 const sendOtp = asyncHandler(async (req, res) => {
   const { email } = req.body;
 
   const otp = Math.floor(Math.random() * 9000 + 1000).toString();
+
+  // const flaskStartResponse = await axios.get(`${process.env.FLASK_URL}/startServer`);
+  // console.log('Flask server start response:', flaskStartResponse.data);
 
   const user = await OtpVerification.findOne({ email });
 
@@ -204,18 +228,20 @@ const callModel = asyncHandler(async (req, res) => {
 
 const setUser = asyncHandler(async (req, res) => {
   const post = req.body.post;
+  console.log('setUser payload:', post);
 
   try {
-    await axios.post(
+    const response = await axios.post(
       `${process.env.FLASK_URL}/setUser`,
       { post },
-      {
-        withCredentials: true,
-      }
+      { withCredentials: true }
     );
+    console.log('setUser response from Flask:', response.data);
   } catch (error) {
-    console.error(error);
-    throw new ApiError(500, error.response.data.message);
+    console.error('Error in setUser:', error.response?.data || error.message || error);
+    const message = error.response?.data?.message || error.message || 'Internal server error';
+    const statusCode = error.response?.status || 500;
+    throw new ApiError(statusCode, message);
   }
 
   res.json(new ApiResponse(200, {}, 'post set successfully'));
@@ -234,4 +260,4 @@ const getDashboardData = asyncHandler(async (req, res) => {
   });
 });
 
-export { callModel, createUser, sendOtp, verifyOtp, uploadResume, setUser, getDashboardData };
+export { rebootServer, callModel, createUser, sendOtp, verifyOtp, uploadResume, setUser, getDashboardData };

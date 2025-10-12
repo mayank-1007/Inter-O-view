@@ -2,7 +2,8 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
 import os
-from Agent import get_response,upload_Resume,intitializeInterviewee,final_dashboard_json
+# from Agent import get_response,upload_Resume,intitializeInterviewee,final_dashboard_json
+from groqModel import get_response,upload_Resume,intitializeInterviewee,final_dashboard_json
 import json
 import re
 from dotenv import load_dotenv
@@ -19,6 +20,13 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
+
+@app.route('/startServer', methods=['GET'])
+def start_server():
+    return jsonify({
+        'message': 'Server started successfully!',
+        'success': True
+    })
 
 @app.route("/predict",methods = ['POST'])
 def predict():
@@ -137,4 +145,5 @@ def end_interview():
         return jsonify({"summary": default_data})
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=os.getenv('FLASK_PORT'))
+    port = int(os.getenv("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
