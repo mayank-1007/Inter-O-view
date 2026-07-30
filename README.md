@@ -178,5 +178,4 @@ This project is licensed under the MIT License. See the `LICENSE` file for more 
 - [Eleven Labs](https://elevenlabs.io) for providing the voice synthesis API tailored for an Indian voice.
 - [Cloudinary](https://cloudinary.com) for providing media management and optimization services.
 - [MongoDB](https://www.mongodb.com) for providing the database solution for efficient data storage and retrieval.
-- [Supabase](https://supabase.com) for providing the vector store database for semantic retrieval capabilities.
 - [LangGraph](https://github.com/langchain-ai/langgraph) for providing the framework to build and orchestrate the AI agent workflow.
