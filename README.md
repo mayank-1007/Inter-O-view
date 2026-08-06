@@ -31,50 +31,6 @@ This project is an AI-based interviewer application designed to simulate a profe
 6. **Quantitative Metrics**
    - At the end of the interview, on the recruiter’s dashboard, quantitative metrics will be shown covering key scores, interview summary, and other key metrics for the recruiter to take the final call.
 
-## [Agent](https://github.com/wolgwang1729/Int-O-View/blob/main/ml/Agent.py)
-
-This AI interviewer agent is built using LangChain and LangGraph to orchestrate a multi-step conversational workflow:
-
-1. **Framework & Graph Structure**
-   - Uses `StateGraph` from LangGraph to define nodes and edges.
-   - Orchestrates message flow through three main nodes: initializer, retriever, and assistant, plus a tools node.
-
-  ![Agent Workflow Diagram](https://i.sstatic.net/1xzIR3Lo.png)
-
-2. **Nodes**
-   - **Initializer**  
-     Inserts the system prompt once at the start of the conversation if not already present.
-   - **Retriever**  
-     Queries a Supabase vector store (via sentence-transformers embeddings) to fetch past candidate questions or hints when semantic similarity is high (> 0.8).This gives the organisation the option to reduce randomness among various candidates and have more control over the interview process.
-     This is done by storing the questions that can be asked in response to the candidate's response in a vector database.
-   - **Assistant**  
-     Invokes a bound LLM (OpenAI, Google Gemini, Groq Gemma2, or HuggingFace Llama-2) to generate interview questions.
-   - **Tools**  
-     Routes calls to external tool functions when the assistant requests them.
-
-3. **LLM Providers**
-   - **OpenAI** via `ChatOpenAI`
-   - **Google Gemini** via `ChatGoogleGenerativeAI`
-   - **Groq** via `ChatGroq`
-   - **HuggingFace** via `ChatHuggingFace` endpoint  
-   These can all be swapped by setting the `provider` argument in `build_graph()`.
-
-4. **Tools**
-   - **wiki_search(query)**  
-     Fetches up to 1 result from Wikipedia for background or context.
-   - **web_search(query)**  
-     Retrieves up to 3 web snippets via Tavily for up-to-date information. This can be used to get the latest information about the candidate from various websites like linkedin, github, google scholar, etc.
-   - **arxiv_search(query)**  
-     Loads up to 3 Arxiv documents to ground technical questions and also to fetch the research papers of the candidate.
-   - **resume_get()**  
-     Accesses the candidate’s resume to focus on the resume. Traditionally, the resume is put in the system prompt and as the interview progresses it starts to get lost in the conversation. This function helps the model to get the resume whenever needed.
-   - **exit_tool()**  
-     Immediately ends the interview if non-serious or inappropriate behavior is detected. Traditionally, the model can't end the interview, if the user said something inappropriate and say quit, the model will not be able to quit as it always has to respond. But this function helps the model to end the interview if the user is not serious or is using some inappropriate language. 
-
-5. **Interview Flow**
-   - Messages start at the `initializer`, pass through the `retriever` to augment with relevant context, then go to `assistant` for LLM response.
-   - If the LLM calls a tool, execution jumps to the `tools` node and returns to `assistant` with the result.
-   - This cycle continues until the interview is complete or `exit_tool` is triggered.
 
 ## Image Gallery
 
