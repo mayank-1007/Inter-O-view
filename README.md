@@ -58,12 +58,6 @@ Here are some images related to the project:
 
 The website is running on Render's free servers, so there might be a delay when it is opened after a long time.
 
-## Video Demonstration
-
-Watch the video demonstration of the project on YouTube:
-
-[![Watch the video](https://img.youtube.com/vi/DihqVOpJFls/maxresdefault.jpg)](https://youtu.be/DPsmpPJPh4w)
-
 ## Recruiter Tools
 
 ### Recruiter-Friendly Dashboard
